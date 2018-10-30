@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,12 +36,15 @@ namespace HerokuNetCore
 
             app.UseStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseMvcWithDefaultRoute();
+
+            if (env.IsProduction())
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+                var options = new RewriteOptions()
+                    .AddRedirectToHttpsPermanent();
+
+                app.UseRewriter(options);
+            }
         }
     }
 }
